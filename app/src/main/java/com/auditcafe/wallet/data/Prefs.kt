@@ -22,9 +22,7 @@ class Prefs(ctx: Context) {
         private set
     var secureScreen by mutableStateOf(sp.getBoolean("secure_screen", true))
         private set
-    var autoRegister by mutableStateOf(sp.getBoolean("auto_register", false))
         private set
-    var notifCapture by mutableStateOf(sp.getBoolean("notif_capture", false))
         private set
     var baseCurrency by mutableStateOf(sp.getString("base", "EGP") ?: "EGP")
         private set
@@ -53,8 +51,6 @@ class Prefs(ctx: Context) {
     @JvmName("applyBiometric") fun setBiometric(v: Boolean) { biometric = v; sp.edit().putBoolean("biometric", v).apply() }
     @JvmName("applyLockTimeout") fun setLockTimeout(v: Int) { lockTimeout = v; sp.edit().putInt("lock_timeout", v).apply() }
     @JvmName("applySecureScreen") fun setSecureScreen(v: Boolean) { secureScreen = v; sp.edit().putBoolean("secure_screen", v).apply() }
-    @JvmName("applyAutoRegister") fun setAutoRegister(v: Boolean) { autoRegister = v; sp.edit().putBoolean("auto_register", v).apply() }
-    @JvmName("applyNotifCapture") fun setNotifCapture(v: Boolean) { notifCapture = v; sp.edit().putBoolean("notif_capture", v).apply() }
     @JvmName("applyBaseCurrency") fun setBaseCurrency(v: String) { baseCurrency = v; sp.edit().putString("base", v).apply() }
     @JvmName("applyRatesUpdated") fun setRatesUpdated(v: Long) { ratesUpdated = v; sp.edit().putLong("rates_updated", v).apply() }
     fun setGold(v: Double) { goldUsdOz = v; sp.edit().putString("gold_oz", v.toString()).apply() }

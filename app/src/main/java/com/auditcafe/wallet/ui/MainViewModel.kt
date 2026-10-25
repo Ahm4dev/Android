@@ -28,7 +28,6 @@ import com.auditcafe.wallet.io.ReceiptStore
 import kotlinx.coroutines.flow.first
 import com.auditcafe.wallet.data.Account
 import com.auditcafe.wallet.data.AppDatabase
-import com.auditcafe.wallet.data.BankRuleRow
 import com.auditcafe.wallet.data.CatTotal
 import com.auditcafe.wallet.data.Category
 import com.auditcafe.wallet.data.Goal
@@ -36,15 +35,11 @@ import com.auditcafe.wallet.data.MonthTotal
 import com.auditcafe.wallet.data.Rate
 import com.auditcafe.wallet.data.Recurring
 import com.auditcafe.wallet.data.RecurringProcessor
-import com.auditcafe.wallet.data.Suggested
 import com.auditcafe.wallet.data.Txn
 import com.auditcafe.wallet.data.TypeTotal
 import com.auditcafe.wallet.io.BackupIO
 import com.auditcafe.wallet.io.RateFetcher
 import com.auditcafe.wallet.io.XlsxIO
-import com.auditcafe.wallet.sms.BankInfo
-import com.auditcafe.wallet.sms.BankRegistry
-import com.auditcafe.wallet.sms.SmsImporter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -79,14 +74,6 @@ data class ReportData(
     val months: List<MonthBar> = emptyList()
 )
 
-data class ScanState(
-    val running: Boolean = false,
-    val done: Int = 0,
-    val total: Int = 0,
-    val added: Int = 0,
-    val finished: Boolean = false
-)
-
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val ctx: Context = app.applicationContext
@@ -104,9 +91,6 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         db.rates().all().map { l -> l.associate { it.currency to it.perUnit } }.state(emptyMap())
     val goals = db.goals().all().state(emptyList())
     val recurring = db.recurring().all().state(emptyList())
-    val pending = db.suggested().pending().state(emptyList())
-    val bankRows = db.bankRules().all().state(emptyList())
-    val banks: StateFlow<List<BankInfo>> = bankRows.map { BankRegistry.merge(ctx, it) }.state(emptyList())
     val base = MutableStateFlow(prefs.baseCurrency)
     val debts = db.debts().all().state(emptyList())
     val txCount = db.txns().count().state(0)
@@ -362,70 +346,6 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     fun deleteRecurring(id: Long) {
         viewModelScope.launch(Dispatchers.IO) { db.recurring().delete(id) }
-    }
-
-    // ---------- الحركات المقترحة ----------
-    fun accept(s: Suggested, t: Txn) {
-        viewModelScope.launch(Dispatchers.IO) {
-            db.withTransaction {
-                db.txns().insert(t.copy(id = 0, hash = s.hash, source = s.source + "_OK"))
-                db.suggested().setStatus(s.id, "ACCEPTED")
-            }
-            if (t.categoryId != null && t.merchant.isNotBlank()) SmartEngine.learn(db, t.merchant, t.categoryId)
-            val l4 = s.last4
-            if (l4 != null) {
-                val a = db.accounts().get(t.accountId)
-                if (a != null && a.last4.isBlank()) db.accounts().update(a.copy(last4 = l4))
-            }
-            refreshAnomalies()
-        }
-    }
-
-    fun ignore(s: Suggested) {
-        viewModelScope.launch(Dispatchers.IO) { db.suggested().setStatus(s.id, "IGNORED") }
-    }
-
-    fun ignoreAll() {
-        viewModelScope.launch(Dispatchers.IO) { db.suggested().ignoreAll() }
-    }
-
-    // ---------- البنوك ----------
-    fun setTrusted(b: BankInfo, trusted: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            db.bankRules().upsert(
-                BankRuleRow(
-                    name = b.name, sender = b.senders.firstOrNull().orEmpty(), custom = b.custom, trusted = trusted,
-                    debitWords = b.debitWords.joinToString(","), creditWords = b.creditWords.joinToString(",")
-                )
-            )
-        }
-    }
-
-    fun addBank(name: String, sender: String, debitWords: String, creditWords: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            db.bankRules().upsert(BankRuleRow(name.trim(), sender.trim(), true, false, debitWords, creditWords))
-        }
-    }
-
-    fun deleteBank(name: String) {
-        viewModelScope.launch(Dispatchers.IO) { db.bankRules().delete(name) }
-    }
-
-    // ---------- مسح صندوق الرسائل ----------
-    val scan = MutableStateFlow(ScanState())
-
-    fun scanInbox() {
-        if (scan.value.running) return
-        viewModelScope.launch(Dispatchers.IO) {
-            scan.value = ScanState(running = true)
-            try {
-                val r = SmsImporter.scan(ctx) { d, t, a -> scan.value = ScanState(true, d, t, a) }
-                scan.value = ScanState(false, r.first, r.first, r.second, true)
-            } catch (e: Exception) {
-                scan.value = ScanState()
-                msg(R.string.error_generic, e.message ?: "")
-            }
-        }
     }
 
     // ---------- Excel ----------

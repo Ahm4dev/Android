@@ -29,7 +29,7 @@ import com.auditcafe.wallet.R
 import com.auditcafe.wallet.data.Txn
 
 @Composable
-fun HomeScreen(vm: MainViewModel, onOpenInbox: () -> Unit, onEdit: (Txn) -> Unit) {
+fun HomeScreen(vm: MainViewModel, onEdit: (Txn) -> Unit) {
     val ctx = LocalContext.current
     val base by vm.base.collectAsState()
     val total by vm.totalBalance.collectAsState()
@@ -39,7 +39,6 @@ fun HomeScreen(vm: MainViewModel, onOpenInbox: () -> Unit, onEdit: (Txn) -> Unit
     val cats by vm.categories.collectAsState()
     val catSpent by vm.homeCats.collectAsState()
     val insights by vm.insights.collectAsState()
-    val pending by vm.pending.collectAsState()
     val recent by vm.recent.collectAsState()
     val accMap = remember(accounts) { accounts.associateBy { it.id } }
     val catMap = remember(cats) { cats.associateBy { it.id } }
@@ -91,20 +90,6 @@ fun HomeScreen(vm: MainViewModel, onOpenInbox: () -> Unit, onEdit: (Txn) -> Unit
                     colors = CardDefaults.cardColors(containerColor = Red.copy(alpha = 0.10f))
                 ) {
                     Text("🤝 " + stringResource(R.string.home_debts_due, dueDebts), modifier = Modifier.padding(16.dp), fontWeight = FontWeight.SemiBold)
-                }
-            }
-        }
-
-        if (pending.isNotEmpty()) {
-            item {
-                Card(
-                    Modifier.fillMaxWidth().clickable(onClick = onOpenInbox),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f))
-                ) {
-                    Text(
-                        "📥 " + stringResource(R.string.pending_banner, pending.size),
-                        modifier = Modifier.padding(16.dp), fontWeight = FontWeight.SemiBold
-                    )
                 }
             }
         }

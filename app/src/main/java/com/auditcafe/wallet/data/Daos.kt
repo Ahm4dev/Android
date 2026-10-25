@@ -123,30 +123,9 @@ interface TxnDao {
 }
 
 @Dao
-interface SuggestedDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE) suspend fun insert(s: Suggested): Long
-    @Update suspend fun update(s: Suggested)
-    @Query("SELECT COUNT(*) FROM suggested WHERE hash=:h") suspend fun hashCount(h: String): Int
-    @Query("SELECT * FROM suggested WHERE status='PENDING' ORDER BY date DESC") fun pending(): Flow<List<Suggested>>
-    @Query("SELECT COUNT(*) FROM suggested WHERE status='PENDING'") suspend fun pendingCountNow(): Int
-    @Query("SELECT COUNT(*) FROM suggested WHERE amount=:amount AND kind=:kind AND date BETWEEN :from AND :to AND source!=:source")
-    suspend fun similarOther(amount: Double, kind: String, from: Long, to: Long, source: String): Int
-    @Query("UPDATE suggested SET status=:s, body='' WHERE id=:id") suspend fun setStatus(id: Long, s: String)
-    @Query("UPDATE suggested SET status='IGNORED', body='' WHERE status='PENDING'") suspend fun ignoreAll()
-}
-
-@Dao
 interface MerchantDao {
     @Query("SELECT * FROM merchant_map WHERE `key`=:k") suspend fun get(k: String): MerchantMap?
     @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun put(m: MerchantMap)
-}
-
-@Dao
-interface BankRuleDao {
-    @Query("SELECT * FROM bank_rules") fun all(): Flow<List<BankRuleRow>>
-    @Query("SELECT * FROM bank_rules") suspend fun list(): List<BankRuleRow>
-    @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun upsert(r: BankRuleRow)
-    @Query("DELETE FROM bank_rules WHERE name=:n") suspend fun delete(n: String)
 }
 
 @Dao

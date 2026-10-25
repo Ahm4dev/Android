@@ -5,7 +5,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.auditcafe.wallet.data.Prefs
-import com.auditcafe.wallet.sms.NotificationHelper
+import com.auditcafe.wallet.work.NotificationHelper
 import com.auditcafe.wallet.work.DailyWorker
 import java.util.concurrent.TimeUnit
 

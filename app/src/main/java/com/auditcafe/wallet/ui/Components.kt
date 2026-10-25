@@ -56,7 +56,6 @@ import kotlinx.coroutines.withContext
 import com.auditcafe.wallet.ai.Insight
 import com.auditcafe.wallet.data.Account
 import com.auditcafe.wallet.data.Category
-import com.auditcafe.wallet.data.Suggested
 import com.auditcafe.wallet.data.Txn
 import java.util.Calendar
 import kotlin.math.abs
@@ -146,23 +145,6 @@ fun EmojiPicker(selected: String, onSelect: (String) -> Unit) {
 }
 
 @Composable
-fun rememberSmsPermission(onGranted: () -> Unit): () -> Unit {
-    val ctx = LocalContext.current
-    val cb by rememberUpdatedState(onGranted)
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { res ->
-        if (res[Manifest.permission.READ_SMS] == true) cb()
-    }
-    return {
-        val have = ContextCompat.checkSelfPermission(ctx, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
-        if (have) cb() else {
-            val p = mutableListOf(Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS)
-            if (Build.VERSION.SDK_INT >= 33) p.add(Manifest.permission.POST_NOTIFICATIONS)
-            launcher.launch(p.toTypedArray())
-        }
-    }
-}
-
-@Composable
 fun insightText(i: Insight, base: String): String {
     val ctx = LocalContext.current
     return when (i.kind) {
@@ -175,21 +157,6 @@ fun insightText(i: Insight, base: String): String {
         "anomaly" -> stringResource(R.string.ins_anomaly, i.label.ifBlank { "—" }, money(i.num1), money(i.num2))
         else -> ""
     }
-}
-
-fun suggestionToTxn(s: Suggested, accounts: List<Account>): Txn {
-    val acc = s.accountId?.let { id -> accounts.firstOrNull { it.id == id } }
-        ?: accounts.firstOrNull { it.currency == s.currency }
-        ?: accounts.firstOrNull()
-    return Txn(
-        type = if (s.kind == "CREDIT") "INCOME" else "EXPENSE",
-        amount = s.amount,
-        accountId = acc?.id ?: 0,
-        categoryId = s.categoryId,
-        merchant = s.merchant.ifBlank { s.bank },
-        date = s.date,
-        source = s.source
-    )
 }
 
 @Composable

@@ -66,7 +66,6 @@ fun SettingsScreen(vm: MainViewModel) {
         "goals" -> GoalsScreen(vm) { sub = "" }
         "recurring" -> RecurringScreen(vm) { sub = "" }
         "rates" -> RatesScreen(vm) { sub = "" }
-        "banks" -> BanksScreen(vm) { sub = "" }
         "debts" -> DebtsScreen(vm) { sub = "" }
         "split" -> SplitScreen(vm) { sub = "" }
         else -> SettingsMain(vm) { sub = it }
@@ -78,12 +77,7 @@ private fun SettingsMain(vm: MainViewModel, navigate: (String) -> Unit) {
     val ctx = LocalContext.current
     val prefs = vm.prefs
 
-    var smsGranted by remember {
-        mutableStateOf(ContextCompat.checkSelfPermission(ctx, Manifest.permission.RECEIVE_SMS) == PackageManager.PERMISSION_GRANTED)
-    }
-    val permLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-        smsGranted = ContextCompat.checkSelfPermission(ctx, Manifest.permission.RECEIVE_SMS) == PackageManager.PERMISSION_GRANTED
-    }
+    val notifPermLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
     var pinStep by remember { mutableStateOf("") }
     var pinA by remember { mutableStateOf("") }
     var pinB by remember { mutableStateOf("") }
@@ -124,27 +118,11 @@ private fun SettingsMain(vm: MainViewModel, navigate: (String) -> Unit) {
         SettingRow("🤝 " + stringResource(R.string.debts), stringResource(R.string.debts_short), onClick = { navigate("debts") })
         SettingRow("🍽 " + stringResource(R.string.split_bill), stringResource(R.string.split_short), onClick = { navigate("split") })
         SettingRow("🔔 " + stringResource(R.string.reminders), stringResource(R.string.reminders_desc)) {
-            Switch(checked = prefs.reminders, onCheckedChange = { prefs.setReminders(it) })
-        }
-
-        SectionTitle(stringResource(R.string.sms_smart))
-        SettingRow(
-            "📩 " + stringResource(R.string.sms_permission),
-            stringResource(if (smsGranted) R.string.granted else R.string.not_granted),
-            onClick = {
-                val p = mutableListOf(Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS)
-                if (android.os.Build.VERSION.SDK_INT >= 33) p.add(Manifest.permission.POST_NOTIFICATIONS)
-                permLauncher.launch(p.toTypedArray())
-            }
-        )
-        SettingRow("🏛 " + stringResource(R.string.banks), stringResource(R.string.banks_short), onClick = { navigate("banks") })
-        SettingRow("⚡ " + stringResource(R.string.auto_register), stringResource(R.string.auto_register_desc)) {
-            Switch(checked = prefs.autoRegister, onCheckedChange = { prefs.setAutoRegister(it) })
-        }
-        SettingRow("🔔 " + stringResource(R.string.notif_capture), stringResource(R.string.notif_capture_desc)) {
-            Switch(checked = prefs.notifCapture, onCheckedChange = {
-                prefs.setNotifCapture(it)
-                if (it) ctx.startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            Switch(checked = prefs.reminders, onCheckedChange = {
+                prefs.setReminders(it)
+                if (it && android.os.Build.VERSION.SDK_INT >= 33 &&
+                    ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+                ) notifPermLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             })
         }
 

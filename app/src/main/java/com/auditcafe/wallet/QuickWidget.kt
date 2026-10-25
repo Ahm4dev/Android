@@ -7,13 +7,12 @@ import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
 
-/** ودجت للشاشة الرئيسية: إضافة حركة سريعة + فتح الحركات المقترحة. لا يعرض أي أرصدة (خصوصية). */
+/** ودجت للشاشة الرئيسية: إضافة حركة سريعة. لا يعرض أي أرصدة (خصوصية). */
 class QuickWidget : AppWidgetProvider() {
     override fun onUpdate(ctx: Context, mgr: AppWidgetManager, ids: IntArray) {
         for (id in ids) {
             val v = RemoteViews(ctx.packageName, R.layout.widget_quick)
             v.setOnClickPendingIntent(R.id.w_add, pending(ctx, 10) { putExtra("quick", true) })
-            v.setOnClickPendingIntent(R.id.w_inbox, pending(ctx, 11) { putExtra("tab", "INBOX") })
             mgr.updateAppWidget(id, v)
         }
     }

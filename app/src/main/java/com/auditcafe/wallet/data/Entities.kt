@@ -40,31 +40,8 @@ data class Txn(
     val note: String = "",
     val date: Long,
     val hash: String? = null,
-    val source: String = "MANUAL",  // MANUAL, IMPORT, SMS_OK, SMS_AUTO, NOTIF_OK, NOTIF_AUTO, RECURRING
+    val source: String = "MANUAL",  // MANUAL, IMPORT, RECURRING (والقيم القديمة SMS_* / NOTIF_* تبقى كما هي في الحركات المسجلة سابقاً)
     val attachment: String? = null  // اسم ملف صورة الفاتورة داخل filesDir/receipts
-)
-
-@Entity(
-    tableName = "suggested",
-    indices = [Index(value = ["hash"], unique = true), Index("date"), Index("status")]
-)
-data class Suggested(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val sender: String,
-    val bank: String,
-    val body: String,
-    val amount: Double,
-    val currency: String,
-    val kind: String,               // DEBIT, CREDIT, TRANSFER, ATM
-    val last4: String?,
-    val merchant: String,
-    val date: Long,
-    val balanceAfter: Double?,
-    val hash: String,
-    val accountId: Long?,
-    val categoryId: Long?,
-    val source: String = "SMS",
-    val status: String = "PENDING"  // PENDING, ACCEPTED, IGNORED
 )
 
 @Entity(tableName = "merchant_map")
@@ -72,16 +49,6 @@ data class MerchantMap(
     @PrimaryKey val key: String,
     val categoryId: Long,
     val hits: Int = 1
-)
-
-@Entity(tableName = "bank_rules")
-data class BankRuleRow(
-    @PrimaryKey val name: String,
-    val sender: String = "",
-    val custom: Boolean = false,
-    val trusted: Boolean = false,
-    val debitWords: String = "",
-    val creditWords: String = ""
 )
 
 @Entity(tableName = "debts")

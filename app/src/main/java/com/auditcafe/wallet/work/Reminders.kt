@@ -7,7 +7,6 @@ import com.auditcafe.wallet.WalletApp
 import com.auditcafe.wallet.data.AppDatabase
 import com.auditcafe.wallet.data.RecurringProcessor
 import com.auditcafe.wallet.io.AutoBackup
-import com.auditcafe.wallet.sms.NotificationHelper
 
 object Reminders {
     suspend fun check(ctx: Context) {

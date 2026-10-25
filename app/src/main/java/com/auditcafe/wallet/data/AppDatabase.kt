@@ -9,18 +9,16 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import java.io.File
 
 @Database(
-    entities = [Account::class, Category::class, Txn::class, Suggested::class, MerchantMap::class,
-        BankRuleRow::class, Goal::class, Rate::class, Recurring::class, Debt::class],
-    version = 3,
+    entities = [Account::class, Category::class, Txn::class, MerchantMap::class,
+        Goal::class, Rate::class, Recurring::class, Debt::class],
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun accounts(): AccountDao
     abstract fun categories(): CategoryDao
     abstract fun txns(): TxnDao
-    abstract fun suggested(): SuggestedDao
     abstract fun merchants(): MerchantDao
-    abstract fun bankRules(): BankRuleDao
     abstract fun goals(): GoalDao
     abstract fun rates(): RateDao
     abstract fun recurring(): RecurringDao
@@ -28,6 +26,14 @@ abstract class AppDatabase : RoomDatabase() {
 
     companion object {
         @Volatile private var inst: AppDatabase? = null
+
+        /** حذف جداول ميزة قراءة الرسائل (الحركات المقترحة وقواعد البنوك). بقية البيانات لا تتأثر. */
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS `suggested`")
+                db.execSQL("DROP TABLE IF EXISTS `bank_rules`")
+            }
+        }
 
         private val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(db: SupportSQLiteDatabase) {
@@ -66,7 +72,7 @@ abstract class AppDatabase : RoomDatabase() {
         private fun build(c: Context): AppDatabase =
             Room.databaseBuilder(c, AppDatabase::class.java, "wallet.db")
                 .setJournalMode(JournalMode.WRITE_AHEAD_LOGGING)
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                 .addCallback(object : Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) = seed(db)
                 })
