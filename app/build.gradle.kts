@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.youssef.wallet"
+    namespace = "com.auditcafe.wallet"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.youssef.wallet"
+        applicationId = "com.auditcafe.wallet"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
