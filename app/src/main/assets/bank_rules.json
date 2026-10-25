@@ -1,0 +1,32 @@
+{
+  "banks": [
+    {"name": "CIB", "senders": ["CIB", "CIB-EG", "CIBEGYPT"]},
+    {"name": "NBE", "senders": ["NBE", "AHLYBANK", "NBE-BANK", "NATIONALBANK"]},
+    {"name": "Banque Misr", "senders": ["BANQUEMISR", "BANQUE-MISR", "BM-BANK", "MISRBANK"]},
+    {"name": "QNB", "senders": ["QNB", "QNBALAHLI", "QNB-ALAHLI"]},
+    {"name": "HSBC", "senders": ["HSBC", "HSBCEGYPT"]},
+    {"name": "Banque du Caire", "senders": ["BDC", "BANQUEDUCAIRE", "BANQUE-DU-CAIRE"]},
+    {"name": "AAIB", "senders": ["AAIB"]},
+    {"name": "ADIB", "senders": ["ADIB", "ADIBEGYPT"]},
+    {"name": "FAB Misr", "senders": ["FAB", "FABMISR", "FAB-MISR"]},
+    {"name": "Alex Bank", "senders": ["ALEXBANK", "ALEX-BANK"]},
+    {"name": "Mashreq", "senders": ["MASHREQ"]},
+    {"name": "Credit Agricole", "senders": ["CREDITAGRICOLE", "CAE", "CA-EGYPT"]},
+    {"name": "Arab Bank", "senders": ["ARABBANK", "ARAB-BANK"]},
+    {"name": "SAIB", "senders": ["SAIB"]},
+    {"name": "HDB", "senders": ["HDB", "HDBANK"]},
+    {"name": "Faisal Islamic Bank", "senders": ["FAISALBANK", "FIB"]},
+    {"name": "EGBANK", "senders": ["EGBANK", "EG-BANK"]},
+    {"name": "Al Baraka", "senders": ["ALBARAKA", "BARAKA"]},
+    {"name": "NBK", "senders": ["NBK", "NBKEGYPT"]},
+    {"name": "Emirates NBD", "senders": ["EMIRATESNBD", "ENBD"]},
+    {"name": "Vodafone Cash", "senders": ["VFCASH", "VODAFONECASH", "VF-CASH"]},
+    {"name": "Orange Cash", "senders": ["ORANGECASH", "ORANGE-CASH"]},
+    {"name": "Etisalat Cash", "senders": ["ETISALATCASH", "EASYCASH", "ETISALAT-CASH"]},
+    {"name": "InstaPay", "senders": ["INSTAPAY", "IPN"]},
+    {"name": "Fawry", "senders": ["FAWRY"]},
+    {"name": "Telda", "senders": ["TELDA"]},
+    {"name": "valU", "senders": ["VALU"]},
+    {"name": "Contact", "senders": ["CONTACT"]}
+  ]
+}
