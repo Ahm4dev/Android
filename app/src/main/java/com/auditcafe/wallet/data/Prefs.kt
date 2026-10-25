@@ -22,8 +22,6 @@ class Prefs(ctx: Context) {
         private set
     var secureScreen by mutableStateOf(sp.getBoolean("secure_screen", true))
         private set
-        private set
-        private set
     var baseCurrency by mutableStateOf(sp.getString("base", "EGP") ?: "EGP")
         private set
     var ratesUpdated by mutableStateOf(sp.getLong("rates_updated", 0L))
